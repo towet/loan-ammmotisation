@@ -58,14 +58,14 @@ export const handler: Handler = async (event) => {
 
     console.log('IPN registration response:', ipnResponse.data);
 
-    if (ipnResponse.data.error) {
-      throw new Error(`IPN registration failed: ${JSON.stringify(ipnResponse.data.error)}`);
+    if (!ipnResponse.data.ipn_id) {
+      throw new Error(`IPN registration failed: No ipn_id in response - ${JSON.stringify(ipnResponse.data)}`);
     }
 
     // Update the order data with the IPN ID
     const updatedOrderData = {
       ...orderData,
-      ipn_id: ipnResponse.data.ipn_id
+      notification_id: ipnResponse.data.ipn_id // Changed from ipn_id to notification_id
     };
 
     console.log('Submitting order to PesaPal...', { updatedOrderData });
