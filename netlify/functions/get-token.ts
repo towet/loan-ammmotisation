@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import axios from 'axios';
 
-const PESAPAL_URL = 'https://pay.pesapal.com/api/v1';
+const PESAPAL_URL = 'https://pay.pesapal.com/v3';
 const consumer_key = process.env.PESAPAL_CONSUMER_KEY;
 const consumer_secret = process.env.PESAPAL_CONSUMER_SECRET;
 
@@ -30,8 +30,9 @@ export const handler: Handler = async (event) => {
   }
 
   try {
+    console.log('Requesting token from PesaPal...');
     const response = await axios.post(
-      `${PESAPAL_URL}/Auth/RequestToken`,
+      `${PESAPAL_URL}/api/Auth/RequestToken`,
       {
         consumer_key,
         consumer_secret,
@@ -44,24 +45,19 @@ export const handler: Handler = async (event) => {
       }
     );
 
+    console.log('Token response:', response.data);
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify(response.data)
     };
   } catch (error) {
-    console.error('Error getting token:', {
-      error_message: error.message,
-      response_data: error.response?.data,
-      response_status: error.response?.status
-    });
-    
+    console.error('Error getting token:', error);
+    const errorMessage = error.response?.data || error.message;
     return {
-      statusCode: error.response?.status || 500,
+      statusCode: 500,
       headers: corsHeaders,
-      body: JSON.stringify({
-        error: error.response?.data || error.message || 'Internal server error'
-      })
+      body: JSON.stringify({ error: `Failed to get token: ${errorMessage}` })
     };
   }
 };
