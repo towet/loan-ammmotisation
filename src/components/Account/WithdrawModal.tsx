@@ -111,10 +111,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       const submitData = await submitResponse.json();
       console.log('Order submitted successfully:', submitData);
 
+      if (submitData.error) {
+        throw new Error(`Order submission failed: ${JSON.stringify(submitData.error)}`);
+      }
+
       if (submitData.redirect_url) {
         window.location.href = submitData.redirect_url;
       } else if (submitData.order_tracking_id) {
-        window.location.href = `https://pay.pesapal.com/iframe/PesapalIframe3/Index?OrderTrackingId=${submitData.order_tracking_id}`;
+        window.location.href = `https://pay.pesapal.com/v3/payment/${submitData.order_tracking_id}`;
       } else {
         throw new Error(`No redirect URL in response: ${JSON.stringify(submitData)}`);
       }

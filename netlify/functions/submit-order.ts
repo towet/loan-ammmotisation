@@ -39,10 +39,39 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    console.log('Submitting order to PesaPal...', { orderData });
+    // First, register the IPN URL
+    console.log('Registering IPN URL with PesaPal...');
+    const ipnResponse = await axios.post(
+      `${PESAPAL_URL}/api/URLSetup/RegisterIPN`,
+      {
+        url: orderData.callback_url,
+        ipn_notification_type: "GET"
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      }
+    );
+
+    console.log('IPN registration response:', ipnResponse.data);
+
+    if (ipnResponse.data.error) {
+      throw new Error(`IPN registration failed: ${JSON.stringify(ipnResponse.data.error)}`);
+    }
+
+    // Update the order data with the IPN ID
+    const updatedOrderData = {
+      ...orderData,
+      ipn_id: ipnResponse.data.ipn_id
+    };
+
+    console.log('Submitting order to PesaPal...', { updatedOrderData });
     const response = await axios.post(
       `${PESAPAL_URL}/api/Transactions/SubmitOrderRequest`,
-      orderData,
+      updatedOrderData,
       {
         headers: {
           'Content-Type': 'application/json',
