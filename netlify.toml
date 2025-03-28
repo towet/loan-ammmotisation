@@ -8,7 +8,7 @@
   included_files = ["netlify/functions/**"]
 
 [[redirects]]
-  from = "/pesapal/api/Auth/RequestToken"
+  from = "/.netlify/functions/get-token"
   to = "/.netlify/functions/get-token"
   status = 200
   force = true
@@ -19,16 +19,26 @@
     Access-Control-Allow-Headers = "Content-Type"
 
 [[redirects]]
-  from = "/pesapal/api/URLSetup/RegisterIPN"
-  to = "https://pay.pesapal.com/api/v1/URLSetup/RegisterIPN"
+  from = "/.netlify/functions/submit-order"
+  to = "/.netlify/functions/submit-order"
   status = 200
   force = true
   methods = ["GET", "POST", "OPTIONS"]
   [redirects.headers]
-    X-From = "Netlify"
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET,POST,OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Headers = "Content-Type"
+
+[[redirects]]
+  from = "/.netlify/functions/ipn"
+  to = "/.netlify/functions/ipn"
+  status = 200
+  force = true
+  methods = ["GET", "POST", "OPTIONS"]
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET,POST,OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
 
 [[redirects]]
   from = "/*"
