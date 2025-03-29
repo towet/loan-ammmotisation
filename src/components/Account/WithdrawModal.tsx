@@ -42,9 +42,19 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       setLoading(true);
       setError(null);
 
+      // Get API base URL
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const apiBase = isVercel ? '/api' : '/.netlify/functions';
+      console.log('Using API base:', apiBase);
+
       // Get token
       console.log('Getting token...');
-      const tokenResponse = await fetch('/api/get-token');
+      const tokenResponse = await fetch(`${apiBase}/get-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!tokenResponse.ok) {
         const errorData = await tokenResponse.text();
@@ -60,8 +70,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       }
 
       // Get the callback URL based on the deployment platform
-      const isVercel = window.location.hostname.includes('vercel.app');
-      const callbackUrl = `${window.location.origin}${isVercel ? '/api' : '/.netlify/functions'}/ipn`;
+      const callbackUrl = `${window.location.origin}${apiBase}/ipn`;
       console.log('Using callback URL:', callbackUrl);
 
       // Prepare order data
@@ -92,7 +101,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       console.log('Submitting order with data:', orderData);
 
       // Submit order
-      const submitResponse = await fetch(`${isVercel ? '/api' : '/.netlify/functions'}/submit-order`, {
+      const submitResponse = await fetch(`${apiBase}/submit-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -7,8 +7,8 @@ const consumer_secret = process.env.PESAPAL_CONSUMER_SECRET;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Content-Type': 'application/json'
 };
 
@@ -19,7 +19,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    res.writeHead(405, corsHeaders).end(JSON.stringify({ error: 'Method not allowed' }));
+    return;
+  }
+
   if (!consumer_key || !consumer_secret) {
+    console.error('Missing Pesapal credentials');
     res.writeHead(500, corsHeaders).end(JSON.stringify({ error: 'Missing Pesapal credentials' }));
     return;
   }
