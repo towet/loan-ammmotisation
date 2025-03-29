@@ -44,7 +44,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
       // Get token
       console.log('Getting token...');
-      const tokenResponse = await fetch('/.netlify/functions/get-token');
+      const tokenResponse = await fetch('/api/get-token');
       
       if (!tokenResponse.ok) {
         const errorData = await tokenResponse.text();
@@ -59,8 +59,9 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
         throw new Error(`No token in response: ${JSON.stringify(tokenData)}`);
       }
 
-      // Get the callback URL
-      const callbackUrl = `${window.location.origin}/.netlify/functions/ipn`;
+      // Get the callback URL based on the deployment platform
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const callbackUrl = `${window.location.origin}${isVercel ? '/api' : '/.netlify/functions'}/ipn`;
       console.log('Using callback URL:', callbackUrl);
 
       // Prepare order data
@@ -91,7 +92,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       console.log('Submitting order with data:', orderData);
 
       // Submit order
-      const submitResponse = await fetch('/.netlify/functions/submit-order', {
+      const submitResponse = await fetch(`${isVercel ? '/api' : '/.netlify/functions'}/submit-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
